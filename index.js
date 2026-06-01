@@ -53,6 +53,11 @@ async function run() {
     const allideas=await ideasCollection.find().toArray()
     res.json(allideas)
   })
+//get trending idea data on database    
+ app.get("/trending-ideas",async(req,res)=>{
+    const allideas = await ideasCollection.find().limit(1).toArray()
+    res.json(allideas)
+  })
 
   
     await client.db("admin").command({ ping: 1 });
