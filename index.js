@@ -23,7 +23,7 @@ app.listen(port, () => {
 });
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = process.env.DB_URI
 
 const client = new MongoClient(uri, {
@@ -58,6 +58,16 @@ async function run() {
     const allideas = await ideasCollection.find().limit(1).toArray()
     res.json(allideas)
   })
+// get only selected idea data details
+  app.get("/ideas/:id",async(req,res)=>{
+    const{id}=req.params
+    const result=await ideasCollection.findOne({
+      _id: new ObjectId(id)
+    })
+    res.json(result)
+  })
+
+
 
   
     await client.db("admin").command({ ping: 1 });
