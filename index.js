@@ -48,7 +48,11 @@ async function run() {
     res.json(result)
     }
     )
-
+//get all idea data on database    
+ app.get("/ideas",async(req,res)=>{
+    const allideas=await ideasCollection.find().toArray()
+    res.json(allideas)
+  })
 
   
     await client.db("admin").command({ ping: 1 });
