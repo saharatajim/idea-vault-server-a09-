@@ -138,6 +138,16 @@ app.delete("/comments/:id",async(req,res)=>{
   res.json(result)
 }) 
   
+// My interaction
+
+  app.get("/comments/user/:userId", async (req, res) => {
+const {userId}=req.params
+console.log(userId)
+const userComments = await commentsCollection.find({userId }).toArray()
+console.log(userComments)
+  res.json(userComments)
+
+})
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
