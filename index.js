@@ -106,12 +106,25 @@ app.get("/my-ideas/:userId",async (req,res)=>{
      res.json(result)  
   })
  //get all comments 
+    app.get("/comments",async(req,res)=>{
+    const allComments=await commentsCollection.find().toArray()
+    res.json(allComments)
+  })
+  //get all comments only on selected details page
 
     app.get("/comments/:ideaId",async (req,res)=>{
     const{ideaId}=req.params
     const allComments = await commentsCollection.find({ selectedIdeaById: ideaId }).toArray()
     res.json(allComments)
 })
+
+//delete comments
+
+app.delete("/comments/:id",async(req,res)=>{
+   const {id}=req.params
+     const result = await commentsCollection.deleteOne({ _id: new ObjectId(id) })
+      res.json(result)
+  })
   
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
