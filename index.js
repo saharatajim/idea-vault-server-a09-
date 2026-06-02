@@ -82,7 +82,17 @@ app.get("/my-ideas/:userId",async (req,res)=>{
           })
           res.json(result)
 })
- 
+ //update idea
+ app.patch("/ideas/:id",async(req,res)=>{
+  const {id}=req.params
+  const updateIdea=req.body
+  console.log(updateIdea)
+  const result = await ideasCollection.updateOne(
+    {_id: new ObjectId(id)},
+    {$set:updateIdea}
+  )
+  res.json(result)
+})
 
   
     await client.db("admin").command({ ping: 1 });
