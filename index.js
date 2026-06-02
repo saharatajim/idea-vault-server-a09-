@@ -105,6 +105,13 @@ app.get("/my-ideas/:userId",async (req,res)=>{
      console.log(result)
      res.json(result)  
   })
+ //get all comments 
+
+    app.get("/comments/:ideaId",async (req,res)=>{
+    const{ideaId}=req.params
+    const allComments = await commentsCollection.find({ selectedIdeaById: ideaId }).toArray()
+    res.json(allComments)
+})
   
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
