@@ -38,7 +38,7 @@ async function run() {
   
  const db=client.db("idea-vault")
  const ideasCollection=db.collection("ideas")
-
+ const commentsCollection=db.collection("comments")
 // post idea on database
     app.post("/ideas",async(req,res)=>{
     const newIdea=req.body
@@ -94,6 +94,17 @@ app.get("/my-ideas/:userId",async (req,res)=>{
   res.json(result)
 })
 
+
+ // comments collection
+
+ // post comment on database
+      app.post("/comments",async(req,res)=>{    
+     const newComment=req.body
+     console.log(newComment);
+     const result=await commentsCollection.insertOne(newComment)
+     console.log(result)
+     res.json(result)  
+  })
   
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
