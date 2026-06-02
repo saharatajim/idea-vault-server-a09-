@@ -55,7 +55,7 @@ async function run() {
   })
 //get trending idea data on database    
  app.get("/trending-ideas",async(req,res)=>{
-    const allideas = await ideasCollection.find().limit(1).toArray()
+    const allideas = await ideasCollection.find().limit(6).toArray()
     res.json(allideas)
   })
 // get only selected idea data details
@@ -74,7 +74,15 @@ app.get("/my-ideas/:userId",async (req,res)=>{
     }).toArray()
     res.json(result)
 })
-
+ //delete  ideas
+          app.delete("/ideas/:id",async (req,res)=>{
+          const{id}=req.params
+          const result=await ideasCollection.deleteOne({
+          _id: new ObjectId(id)
+          })
+          res.json(result)
+})
+ 
 
   
     await client.db("admin").command({ ping: 1 });
