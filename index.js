@@ -66,7 +66,14 @@ async function run() {
     })
     res.json(result)
   })
-
+ //get user based my  idea data  
+app.get("/my-ideas/:userId",async (req,res)=>{
+   const{userId}=req.params
+ const result=await ideasCollection.find({
+      userId
+    }).toArray()
+    res.json(result)
+})
 
 
   
