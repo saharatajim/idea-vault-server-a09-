@@ -125,6 +125,18 @@ app.delete("/comments/:id",async(req,res)=>{
      const result = await commentsCollection.deleteOne({ _id: new ObjectId(id) })
       res.json(result)
   })
+
+ //update comment
+   app.patch("/comments/:id",async(req,res)=>{
+  const {id}=req.params
+  const updateComment=req.body
+  console.log(updateComment)
+  const result = await commentsCollection.updateOne(
+    {_id: new ObjectId(id)},
+    {$set:updateComment}
+  )
+  res.json(result)
+}) 
   
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
