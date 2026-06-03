@@ -49,10 +49,23 @@ async function run() {
     }
     )
 //get all idea data on database    
+
  app.get("/ideas",async(req,res)=>{
-    const allideas=await ideasCollection.find().toArray()
+  const{category}=req.query
+  const query={}
+  if(category){
+    query.category=category
+  }
+  console.log(category,"category")
+  console.log(query);
+    const allideas=await ideasCollection.find(query).toArray()
     res.json(allideas)
   })
+
+
+
+
+
 //get trending idea data on database    
  app.get("/trending-ideas",async(req,res)=>{
     const allideas = await ideasCollection.find().limit(6).toArray()
@@ -110,6 +123,7 @@ app.get("/my-ideas/:userId",async (req,res)=>{
     const allComments=await commentsCollection.find().toArray()
     res.json(allComments)
   })
+  
   //get all comments only on selected details page
 
     app.get("/comments/:ideaId",async (req,res)=>{
