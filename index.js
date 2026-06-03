@@ -51,10 +51,15 @@ async function run() {
 //get all idea data on database    
 
  app.get("/ideas",async(req,res)=>{
-  const{category}=req.query
+  const{category,search}=req.query
   const query={}
   if(category){
     query.category=category
+  }
+  if(search){
+    query.title={
+      $regex:search,$options:"i"
+    }
   }
   console.log(category,"category")
   console.log(query);
