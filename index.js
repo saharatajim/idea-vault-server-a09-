@@ -5,12 +5,38 @@ require('dotenv').config()
 
 const express = require('express');
 const app = express();
-const port = 5000;
+const port = process.env.PORT ||5000;
 
 
 const cors=require("cors")  
 app.use(cors())  
 app.use(express.json())
+const { createRemoteJWKSet, jwtVerify } = require("jose-cjs");
+
+const JWKS=createRemoteJWKSet(
+  new URL(`${process.env.CLIENT_SERVER}/api/auth/jwks`)
+)
+
+const middleware=async(req,res,next)=>{
+const authHeader=req?.headers?.authorization
+if(!authHeader){
+  return res.status(401).json({message:"Unauthorized"})
+}
+const token=authHeader.split(" ")[1]
+if(!token){
+  return res.status(401).json({message:"Unauthorized"})
+}
+console.log(token,"token");
+try{
+const {payload}=await jwtVerify(token,JWKS)
+console.log(payload,"payload");
+next()
+}catch(error){
+   return res.status(403).json({message:"Unauthorized"})
+}
+
+
+}
 
 
 
@@ -24,6 +50,7 @@ app.listen(port, () => {
 
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+
 const uri = process.env.DB_URI
 
 const client = new MongoClient(uri, {
@@ -33,6 +60,7 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+
 async function run() {
   try {
   
@@ -40,7 +68,7 @@ async function run() {
  const ideasCollection=db.collection("ideas")
  const commentsCollection=db.collection("comments")
 // post idea on database
-    app.post("/ideas",async(req,res)=>{
+    app.post("/ideas",middleware,async(req,res)=>{
     const newIdea=req.body
      console.log(newIdea);
     const result=await ideasCollection.insertOne(newIdea)
@@ -61,12 +89,10 @@ async function run() {
       $regex:search,$options:"i"
     }
   }
-  console.log(category,"category")
-  console.log(query);
+
     const allideas=await ideasCollection.find(query).toArray()
     res.json(allideas)
   })
-
 
 
 
@@ -76,16 +102,16 @@ async function run() {
     const allideas = await ideasCollection.find().limit(6).toArray()
     res.json(allideas)
   })
-// get only selected idea data details
-  app.get("/ideas/:id",async(req,res)=>{
+// get only selected idea data details [will be private]
+  app.get("/ideas/:id",middleware,async(req,res)=>{
     const{id}=req.params
     const result=await ideasCollection.findOne({
       _id: new ObjectId(id)
     })
     res.json(result)
   })
- //get user based my  idea data  
-app.get("/my-ideas/:userId",async (req,res)=>{
+ //get user based my  idea data  [will be private]
+app.get("/my-ideas/:userId",middleware,async (req,res)=>{
    const{userId}=req.params
  const result=await ideasCollection.find({
       userId
@@ -103,8 +129,9 @@ app.get("/my-ideas/:userId",async (req,res)=>{
  //update idea
  app.patch("/ideas/:id",async(req,res)=>{
   const {id}=req.params
+
   const updateIdea=req.body
-  console.log(updateIdea)
+
   const result = await ideasCollection.updateOne(
     {_id: new ObjectId(id)},
     {$set:updateIdea}
@@ -118,9 +145,9 @@ app.get("/my-ideas/:userId",async (req,res)=>{
  // post comment on database
       app.post("/comments",async(req,res)=>{    
      const newComment=req.body
-     console.log(newComment);
+     
      const result=await commentsCollection.insertOne(newComment)
-     console.log(result)
+    
      res.json(result)  
   })
  //get all comments 
@@ -149,7 +176,7 @@ app.delete("/comments/:id",async(req,res)=>{
    app.patch("/comments/:id",async(req,res)=>{
   const {id}=req.params
   const updateComment=req.body
-  console.log(updateComment)
+ 
   const result = await commentsCollection.updateOne(
     {_id: new ObjectId(id)},
     {$set:updateComment}
@@ -157,17 +184,17 @@ app.delete("/comments/:id",async(req,res)=>{
   res.json(result)
 }) 
   
-// My interaction
+// My interaction [will be private]
 
-  app.get("/comments/user/:userId", async (req, res) => {
+  app.get("/comments/user/:userId",middleware, async (req, res) => {
 const {userId}=req.params
-console.log(userId)
+
 const userComments = await commentsCollection.find({userId }).toArray()
-console.log(userComments)
+
   res.json(userComments)
 
 })
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     
