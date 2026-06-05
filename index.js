@@ -68,14 +68,14 @@ async function run() {
  const ideasCollection=db.collection("ideas")
  const commentsCollection=db.collection("comments")
 // post idea on database
-    app.post("/ideas",middleware,async(req,res)=>{
-    const newIdea=req.body
-     console.log(newIdea);
-    const result=await ideasCollection.insertOne(newIdea)
-    console.log(result)
-    res.json(result)
-    }
-    )
+   app.post("/ideas", middleware, async (req, res) => {
+  const newIdea = { ...req.body, createdAt: new Date() }  
+  console.log(newIdea);
+  const result = await ideasCollection.insertOne(newIdea)
+  console.log(result)
+  res.json(result)
+})
+
 //get all idea data on database    
 
  app.get("/ideas",async(req,res)=>{
@@ -98,10 +98,15 @@ async function run() {
 
 
 //get trending idea data on database    
- app.get("/trending-ideas",async(req,res)=>{
-    const allideas = await ideasCollection.find().limit(6).toArray()
-    res.json(allideas)
-  })
+ app.get("/trending-ideas", async (req, res) => {
+  const trendingIdeas = await ideasCollection
+    .find()
+    .sort({ createdAt: -1 })   
+    .limit(6)
+    .toArray()
+  res.json(trendingIdeas)
+})
+
 // get only selected idea data details [will be private]
   app.get("/ideas/:id",middleware,async(req,res)=>{
     const{id}=req.params
